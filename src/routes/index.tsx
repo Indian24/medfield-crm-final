@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Provider } from "react-redux";
 import { store } from "../store";
 import { CrmHeader } from "../components/CrmHeader";
+import { DashboardStats } from "../components/DashboardStats";
 import { InteractionForm } from "../components/InteractionForm";
 import { ChatPanel } from "../components/ChatPanel";
 import { InteractionList } from "../components/InteractionList";
@@ -25,7 +26,7 @@ function Index() {
         <CrmHeader />
 
         {/* Page Title */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-6 pb-4">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-6 pb-2">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-semibold text-foreground">Log HCP Interaction</h2>
             <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-info/10 text-info">
@@ -35,6 +36,11 @@ function Index() {
           <p className="text-sm text-muted-foreground mt-1">
             Record your interaction using the form or let the AI assistant structure it from natural language.
           </p>
+        </div>
+
+        {/* Dashboard Stats */}
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-3">
+          <DashboardStats />
         </div>
 
         {/* Main Layout */}
@@ -48,7 +54,7 @@ function Index() {
 
             {/* Right: AI Chat */}
             <div className="lg:col-span-5">
-              <div className="lg:sticky lg:top-4" style={{ height: 'calc(100vh - 140px)' }}>
+              <div className="lg:sticky lg:top-4" style={{ height: 'calc(100vh - 200px)' }}>
                 <ChatPanel />
               </div>
             </div>
