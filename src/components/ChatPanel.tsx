@@ -11,6 +11,7 @@ const QUICK_ACTIONS = [
   { label: '📋 Summarize', tool: 'summarize', hint: 'Summarize interaction' },
   { label: '🎯 Follow-up', tool: 'followup', hint: 'Suggest next steps' },
   { label: '💭 Sentiment', tool: 'sentiment', hint: 'Analyze sentiment' },
+  { label: '🔍 Extract', tool: 'extract', hint: 'Extract entities from text' },
   { label: '✅ Validate', tool: 'validate', hint: 'Check compliance' },
 ];
 
