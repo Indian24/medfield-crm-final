@@ -175,7 +175,7 @@ function processWithBuiltInAI(message: string, tool?: string): AiChatResponse {
 }
 
 export const processAiChat = createServerFn({ method: 'POST' })
-  .validator((data: AiChatRequest) => data)
+  .inputValidator((data: unknown) => data as AiChatRequest)
   .handler(async ({ data }): Promise<AiChatResponse> => {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
 
