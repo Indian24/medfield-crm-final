@@ -1,269 +1,197 @@
 # MedField CRM — AI-Powered HCP Interaction Logger
 
-A full-stack AI-first CRM module for field representatives in life sciences, featuring both structured form-based and conversational AI-powered HCP (Healthcare Professional) interaction logging.
-
-![Tech Stack](https://img.shields.io/badge/React-19-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.110-green) ![LangGraph](https://img.shields.io/badge/LangGraph-Agent-purple) ![Groq](https://img.shields.io/badge/Groq-gemma2--9b--it-orange)
+An AI-first CRM module for life-science field representatives to log, manage, and analyze Healthcare Professional (HCP) interactions. Features a dual-interface: structured form entry and a conversational AI agent powered by LangGraph.
 
 ---
 
-## 🌟 Features
-
-- **Dual-mode interaction logging**: Structured form OR conversational AI chat
-- **LangGraph AI Agent** with 7 tools (5+ required) for HCP workflow automation
-- **Real-time entity extraction** from natural language into structured CRM records
-- **Sentiment analysis** for HCP interactions
-- **Smart follow-up suggestions** based on interaction context
-- **Compliance validation** ensuring complete interaction records
-- **Redux Toolkit** state management with full form/chat/interaction state
-- **Modern responsive UI** with Inter font and enterprise-grade design
-- **FastAPI backend** with SQLAlchemy ORM and Pydantic validation
-- **PostgreSQL** database with full CRUD operations
-
----
-
-## 🏗️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19, Redux Toolkit, TanStack Start, Tailwind CSS |
-| Backend | Python, FastAPI, Pydantic, SQLAlchemy, Alembic |
-| AI | LangGraph, Groq API (gemma2-9b-it), LLM tool orchestration |
-| Database | PostgreSQL (SQLAlchemy ORM, database-agnostic) |
-| Fonts | Google Inter |
+| **Frontend** | React 19, TanStack Start, Redux Toolkit, Tailwind CSS 4 |
+| **AI Agent** | LangGraph, LangChain, Groq (gemma2-9b-it / llama-3.3-70b-versatile) |
+| **Backend API** | FastAPI, Pydantic v2, SQLAlchemy 2.0 |
+| **Database** | PostgreSQL (prod) / SQLite (dev) |
+| **Styling** | Tailwind CSS with semantic design tokens, Google Inter font |
 
 ---
 
-## 📁 Project Structure
+## Architecture
 
 ```
-/
-├── src/                          # Frontend (React + TanStack Start)
-│   ├── components/
-│   │   ├── CrmHeader.tsx         # Top navigation bar
-│   │   ├── InteractionForm.tsx   # Structured form panel
-│   │   ├── ChatPanel.tsx         # AI assistant chat panel
-│   │   ├── InteractionList.tsx   # Saved interactions list
-│   │   └── Notifications.tsx     # Toast notifications
-│   ├── store/
-│   │   ├── index.ts              # Redux store configuration
-│   │   ├── interactionSlice.ts   # Interaction state (form, items, CRUD)
-│   │   ├── chatSlice.ts          # Chat state (messages, processing)
-│   │   └── hooks.ts              # Typed Redux hooks
-│   ├── server/
-│   │   └── ai.functions.ts       # Server function for AI processing
-│   ├── routes/
-│   │   ├── __root.tsx            # Root layout
-│   │   └── index.tsx             # Main CRM page
-│   └── styles.css                # Design system tokens
-│
-├── backend/                      # Python FastAPI Backend
-│   ├── app/
-│   │   ├── main.py               # FastAPI app entry point
-│   │   ├── core/
-│   │   │   └── config.py         # Settings and environment vars
-│   │   ├── db/
-│   │   │   ├── base.py           # SQLAlchemy base
-│   │   │   └── session.py        # Database session management
-│   │   ├── models/
-│   │   │   └── interaction.py    # SQLAlchemy Interaction model
-│   │   ├── schemas/
-│   │   │   └── interaction.py    # Pydantic schemas
-│   │   ├── routers/
-│   │   │   ├── interactions.py   # CRUD endpoints
-│   │   │   └── ai.py             # AI/LangGraph endpoints
-│   │   ├── services/
-│   │   │   └── interaction_service.py  # Business logic
-│   │   ├── agents/
-│   │   │   └── hcp_agent.py      # LangGraph agent definition
-│   │   └── tools/
-│   │       ├── log_interaction.py      # Tool 1: Log Interaction
-│   │       ├── edit_interaction.py     # Tool 2: Edit Interaction
-│   │       ├── summarize.py            # Tool 3: Summarize Interaction
-│   │       ├── extract_entities.py     # Tool 4: Extract Entities
-│   │       ├── suggest_followup.py     # Tool 5: Suggest Follow-up
-│   │       ├── sentiment_analysis.py   # Tool 6: Sentiment Analysis
-│   │       └── compliance_check.py     # Tool 7: Compliance Validation
-│   ├── alembic/
-│   │   └── versions/             # Database migrations
-│   ├── alembic.ini
-│   ├── requirements.txt
-│   └── .env.example
-│
-└── README.md
+┌──────────────────────────────────────────────┐
+│                  Frontend                     │
+│  React + Redux Toolkit + TanStack Start       │
+│  ┌─────────────┐  ┌──────────────────┐       │
+│  │ Form Panel  │  │  Chat Panel (AI) │       │
+│  └──────┬──────┘  └────────┬─────────┘       │
+│         │                  │                  │
+│         └────────┬─────────┘                  │
+│                  ▼                            │
+│        Server Function (RPC)                  │
+│        src/server/ai.functions.ts             │
+│                  │                            │
+│                  ▼                            │
+│   ┌─── Python Backend Available? ──┐         │
+│   │ YES: Forward to FastAPI        │         │
+│   │ NO:  Built-in demo AI logic    │         │
+│   └────────────────────────────────┘         │
+└──────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────┐
+│              Python Backend                   │
+│  FastAPI + LangGraph Agent                    │
+│                                              │
+│  /ai/chat ──► LangGraph Agent                │
+│               ┌─────────┐                    │
+│               │ Router  │ (LLM intent)       │
+│               └────┬────┘                    │
+│                    ▼                         │
+│          ┌── Tool Selection ──┐              │
+│          │ 7 Specialized Tools│              │
+│          └────────┬───────────┘              │
+│                   ▼                          │
+│            Response Formatter                │
+│                   ▼                          │
+│            Structured JSON                   │
+└──────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Setup Instructions
+## Features
 
-### Prerequisites
+- **Structured Form**: Full CRM form with HCP name, interaction type, date/time, attendees, topics, materials, samples, sentiment, outcomes, follow-ups
+- **AI Chat Panel**: Natural language input auto-extracts structured fields
+- **7 AI Agent Tools**: Log, Edit, Summarize, Sentiment, Follow-up, Extract Entities, Compliance Check
+- **Dashboard Stats**: Real-time metrics (total interactions, unique HCPs, sentiment distribution)
+- **CRUD Operations**: Create, read, update, delete interactions
+- **Demo Mode**: Built-in AI simulation works without Python backend
 
-- **Node.js 18+** and **Bun** (for frontend)
-- **Python 3.10+** (for backend)
-- **PostgreSQL** (or SQLite for local dev)
-- **Groq API key** (free at https://console.groq.com)
+---
 
-### Environment Variables
+## Setup & Run
 
-Create `backend/.env`:
-
-```env
-# Required
-GROQ_API_KEY=your_groq_api_key_here
-
-# Database (PostgreSQL recommended, SQLite fallback)
-DATABASE_URL=postgresql://user:password@localhost:5432/medfield_crm
-# For local dev without PostgreSQL:
-# DATABASE_URL=sqlite:///./medfield_crm.db
-
-# Optional
-BACKEND_HOST=0.0.0.0
-BACKEND_PORT=8000
-```
-
-### Frontend Setup
+### Frontend Only (Demo Mode)
 
 ```bash
-# From project root
-bun install
-bun run dev
-# Frontend runs at http://localhost:5173
-```
-
-### Backend Setup
-
-```bash
-cd backend
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
 # Install dependencies
+bun install
+
+# Start dev server
+bun run dev
+```
+
+The app runs at `http://localhost:5173` with built-in demo AI (no Python backend needed).
+
+### Full Stack (with LangGraph Backend)
+
+```bash
+# 1. Frontend
+bun install && bun run dev
+
+# 2. Backend (in separate terminal)
+cd backend
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Run database migrations
-alembic upgrade head
+# 3. Configure environment
+cp .env.example .env
+# Edit .env and set your GROQ_API_KEY
 
-# Start the server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### PostgreSQL Setup
-
-```bash
-# Create database
-createdb medfield_crm
-
-# Or with psql
-psql -c "CREATE DATABASE medfield_crm;"
-
-# Update DATABASE_URL in backend/.env
+# 4. Start backend
+uvicorn app.main:app --reload --port 8000
 ```
 
 ---
 
-## 🤖 LangGraph Agent Architecture
+## Environment Variables
 
-The AI agent is built with **LangGraph** and uses **Groq's gemma2-9b-it** model. It follows a tool-calling architecture:
-
-```
-User Input → Agent Router → Tool Selection → Tool Execution → Response
-                ↑                                    |
-                └────────── State Update ←──────────┘
-```
-
-### Agent Graph Flow
-
-1. **Input Node**: Receives user message
-2. **Router Node**: Determines intent (log, edit, summarize, etc.)
-3. **Tool Node**: Executes the selected tool with LLM-extracted parameters
-4. **Response Node**: Formats the result for the user
-
-### The 7 Tools
-
-| # | Tool | Description |
-|---|------|-------------|
-| 1 | **Log Interaction** | Parses free text → structured fields → saves to DB |
-| 2 | **Edit Interaction** | Finds interaction by ID/name → modifies fields → returns diff |
-| 3 | **Summarize Interaction** | Generates CRM-style meeting summary |
-| 4 | **Extract Entities** | Pulls HCP name, product, sentiment, dates from text |
-| 5 | **Suggest Follow-up** | Recommends next best actions with priority/timeline |
-| 6 | **Sentiment Analysis** | Classifies HCP sentiment with confidence score |
-| 7 | **Compliance Validation** | Checks for missing required fields |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GROQ_API_KEY` | Yes (backend) | Groq API key for LLM calls |
+| `DATABASE_URL` | No | DB connection string (default: SQLite) |
+| `BACKEND_URL` | No | Backend URL for frontend (default: `http://localhost:8000`) |
+| `PRIMARY_MODEL` | No | LLM model (default: `gemma2-9b-it`) |
+| `FALLBACK_MODEL` | No | Fallback model (default: `llama-3.3-70b-versatile`) |
 
 ---
 
-## 💬 Example Chat Prompts to Test
+## How LangGraph Works
+
+The agent is defined in `backend/app/agents/hcp_agent.py` using a **StateGraph**:
+
+1. **Router Node**: Receives user message, uses LLM (Groq) to understand intent and select the appropriate tool via function calling
+2. **Tool Node**: Executes the selected tool (each tool makes its own LLM call for specialized processing)
+3. **Response Node**: Formats tool output into structured JSON with `reply`, `tool_used`, and `structured_data`
 
 ```
-"Met Dr. Sharma today, discussed Product X, positive response, shared brochure, follow up next week."
-
-"Called Dr. Kumar about Product Y side effects, he was skeptical, needs more safety data."
-
-"Summarize my interaction with Dr. Sharma."
-
-"Suggest follow-up actions for Dr. Kumar."
-
-"Check if the interaction with Dr. Patel has all required fields."
-
-"Update Dr. Sharma's interaction — change sentiment to neutral."
-
-"What was Dr. Kumar's reaction to Product Y?"
+Entry → Router (LLM decides) → [Tools | Respond]
+         ↓                         ↓
+   Tool Execution              Direct Response
+         ↓
+    Response Formatter → END
 ```
 
 ---
 
-## 🎬 Demo Checklist
+## 7 Agent Tools Explained
 
-For your assignment video, demonstrate:
-
-1. **Form-based logging**: Fill out the structured form and save
-2. **Chat-based logging**: Type a natural language description → see AI extract entities → confirm and save
-3. **Edit via chat**: Ask the AI to update an existing interaction
-4. **Summarize**: Click Summarize or ask the AI to summarize
-5. **Follow-up suggestions**: Ask for next best actions
-6. **Sentiment analysis**: Show sentiment detection from text
-7. **Compliance check**: Show validation of missing fields
-8. **Interaction list**: Show saved records with sentiment badges
-9. **Form auto-fill**: Show how AI populates the form from chat
+| # | Tool | File | Description |
+|---|------|------|-------------|
+| 1 | `log_interaction` | `tools/log_interaction.py` | Extracts structured CRM fields from natural language using LLM |
+| 2 | `edit_interaction` | `tools/edit_interaction.py` | Identifies fields to update in an existing interaction record |
+| 3 | `summarize_interaction` | `tools/summarize.py` | Generates concise CRM-style meeting summaries |
+| 4 | `analyze_sentiment` | `tools/sentiment_analysis.py` | Classifies HCP reaction as Positive/Neutral/Negative with confidence |
+| 5 | `suggest_followup` | `tools/suggest_followup.py` | Recommends prioritized next-best-actions |
+| 6 | `extract_entities` | `tools/extract_entities.py` | Identifies HCP names, products, dates, and medical terms |
+| 7 | `compliance_check` | `tools/compliance_check.py` | Validates interaction records against mandatory field requirements |
 
 ---
 
-## 📡 Backend API Endpoints
+## Example Test Prompts
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-| GET | `/interactions` | List all interactions |
-| GET | `/interactions/{id}` | Get single interaction |
-| POST | `/interactions` | Create interaction |
-| PUT | `/interactions/{id}` | Update interaction |
-| DELETE | `/interactions/{id}` | Delete interaction |
-| POST | `/ai/chat` | General AI chat |
-| POST | `/ai/log` | Log interaction via AI |
-| POST | `/ai/edit` | Edit interaction via AI |
-| POST | `/ai/summarize` | Summarize interaction |
-| POST | `/ai/followup` | Suggest follow-ups |
-| POST | `/ai/extract` | Extract entities |
-| POST | `/ai/sentiment` | Analyze sentiment |
+Use these in the AI Chat Panel to demo each tool:
+
+| Tool | Prompt |
+|------|--------|
+| **Log** | "Met Dr. Sharma today to discuss Product X, she was very interested and requested samples" |
+| **Edit** | "Update the interaction with Dr. Kumar — change sentiment to Positive" |
+| **Summarize** | "Summarize my meeting with Dr. Sharma about Product X clinical trials" |
+| **Sentiment** | "Dr. Desai seemed skeptical about the pricing but open to a trial" |
+| **Follow-up** | "What should I do next after meeting Dr. Patel about elderly dosing?" |
+| **Extract** | "Extract entities: Called Dr. Singh on Monday, discussed Product Y side effects, left brochure" |
+| **Validate** | "Check if my interaction with Dr. Sharma is compliant" |
 
 ---
 
-## 🔧 Key Files to Inspect
+## Key Files to Inspect
 
-1. `src/routes/index.tsx` — Main CRM page layout
-2. `src/components/ChatPanel.tsx` — AI chat interface with quick actions
-3. `src/store/interactionSlice.ts` — Redux state for interactions
-4. `src/server/ai.functions.ts` — Server-side AI processing (with built-in demo mode)
-5. `backend/app/agents/hcp_agent.py` — LangGraph agent definition
-6. `backend/app/tools/` — All 7 LangGraph tools
-7. `backend/app/main.py` — FastAPI app with all endpoints
+| File | Purpose |
+|------|---------|
+| `src/routes/index.tsx` | Main page layout with form + chat + stats |
+| `src/components/ChatPanel.tsx` | AI chat UI with quick actions |
+| `src/components/InteractionForm.tsx` | Structured CRM form |
+| `src/components/DashboardStats.tsx` | Real-time dashboard metrics |
+| `src/store/interactionSlice.ts` | Redux state management + CRUD |
+| `src/server/ai.functions.ts` | Server function with demo AI + backend proxy |
+| `backend/app/agents/hcp_agent.py` | LangGraph agent definition |
+| `backend/app/tools/*.py` | 7 individual agent tools |
+| `backend/app/main.py` | FastAPI entry point |
 
 ---
 
-## 📝 Notes
+## Demo Checklist
 
-- The frontend includes a **built-in demo mode** that works without the Python backend — the AI processing logic is replicated in the TanStack server function for immediate testing.
-- When the Python backend is running, the frontend automatically connects to it for full LangGraph + Groq API integration.
-- The database is configured with SQLAlchemy for database-agnostic operation — works with both PostgreSQL and SQLite.
+- [ ] **Form logging**: Fill in HCP name + fields → Save → Appears in list
+- [ ] **Chat logging**: Type "Met Dr. Sharma today, discussed Product X, positive response" → Form auto-fills
+- [ ] **AI extraction**: Observe structured data extracted from natural language
+- [ ] **Edit interaction**: Click a record in list → Edit in form → Update
+- [ ] **Delete**: Click ✕ on a record to remove it
+- [ ] **Summarize**: Use Summarize quick action with interaction text
+- [ ] **Sentiment**: Use Sentiment quick action to analyze HCP reaction
+- [ ] **Follow-up**: Use Follow-up quick action for next-best-actions
+- [ ] **Extract entities**: Use Extract quick action to pull structured data
+- [ ] **Validate**: Use Validate quick action to check compliance
+- [ ] **Dashboard stats**: Verify counters update after adding/deleting records
