@@ -90,7 +90,7 @@ function processWithBuiltInAI(message: string, tool?: string): AiChatResponse {
   }
 
   // Tool: Suggest Follow-up
-  if (tool === 'followup' || (!tool && /suggest|recommend|next\s+step|follow.?up\s+(?:action|suggestion)/i.test(lowerMsg))) {
+  if (tool === 'followup' || (!tool && /suggest|recommend|next\s+step|what\s+should\s+I\s+do|follow.?up|next\s+action|what.?s\s+next/i.test(lowerMsg))) {
     const entities = extractEntities(message);
     const name = entities.hcp_name || 'the HCP';
     return {
@@ -126,7 +126,7 @@ function processWithBuiltInAI(message: string, tool?: string): AiChatResponse {
   }
 
   // Tool: Compliance/Validation
-  if (tool === 'validate' || (!tool && /validate|check|compliance|missing|required/i.test(lowerMsg))) {
+  if (tool === 'validate' || (!tool && /validate|compliance|missing\s+field|required\s+field/i.test(lowerMsg))) {
     const entities = extractEntities(message);
     const missing: string[] = [];
     if (!entities.hcp_name) missing.push('HCP Name');
