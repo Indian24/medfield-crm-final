@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Frontend / Node
 node_modules
 dist
 dist-ssr
@@ -16,17 +17,42 @@ dist-ssr
 .nitro
 *.local
 
+# Backend / Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+backend/__pycache__/
+backend/.venv/
+
+# Secrets / env files
+.env
+backend/.env
+**/.env
+*.env.local
+
+# Database files
+*.db
+backend/*.db
+backend/medfield_crm.db
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
 
-# Editor directories and files
+# Editor files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS / misc
+Thumbs.db

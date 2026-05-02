@@ -3,7 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setInputValue, addMessage, setProcessing, clearChat, type ChatMessage } from '../store/chatSlice';
 import { setAiPreview, applyAiPreview } from '../store/interactionSlice';
-import { processAiChat } from '../server/ai.functions';
+
+const API_BASE = "http://127.0.0.1:8000";
 
 const QUICK_ACTIONS = [
   { label: '📝 Log', tool: 'log', hint: 'Log a new interaction' },
@@ -43,28 +44,38 @@ export function ChatPanel() {
     dispatch(setProcessing(true));
 
     try {
-      const response = await processAiChat({
-        data: { message: text, tool: toolOverride },
+      const response = await fetch(`${API_BASE}/ai/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: text, tool: toolOverride }),
       });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const data = await response.json();
 
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.reply,
+        content: data.reply,
         timestamp: new Date().toISOString(),
-        toolUsed: response.tool_used,
-        structuredData: response.structured_data,
+        toolUsed: data.tool_used,
+        structuredData: data.structured_data,
       };
 
       dispatch(addMessage(aiMessage));
 
       // If structured data was extracted, set it as AI preview
-      if (response.structured_data && Object.keys(response.structured_data).length > 0) {
+      if (data.structured_data && Object.keys(data.structured_data).length > 0) {
         const formFields = ['hcp_name', 'interaction_type', 'interaction_date', 'interaction_time',
           'attendees', 'topics_discussed', 'materials_shared', 'samples_distributed',
           'sentiment', 'outcomes', 'follow_up_actions'];
         const formData: Record<string, any> = {};
-        for (const [k, v] of Object.entries(response.structured_data)) {
+        for (const [k, v] of Object.entries(data.structured_data)) {
           if (formFields.includes(k) && v) formData[k] = v;
         }
         if (Object.keys(formData).length > 0) {
@@ -72,7 +83,8 @@ export function ChatPanel() {
           dispatch(applyAiPreview());
         }
       }
-    } catch {
+    } catch (err) {
+      console.error('AI chat error', err);
       dispatch(addMessage({
         id: (Date.now() + 1).toString(),
         role: 'assistant',
